@@ -1,5 +1,6 @@
 package com.mx.codehappy.retorfit;
 
+import com.mx.codehappy.constant.CoderfunKey;
 import com.squareup.okhttp.OkHttpClient;
 
 import retrofit.GsonConverterFactory;
@@ -13,7 +14,7 @@ import retrofit.RxJavaCallAdapterFactory;
 public class CoderfunRetrofit {
     public static final OkHttpClient httpClient=new OkHttpClient();
     public static Retrofit.Builder sBuilder=new Retrofit.Builder()
-            .baseUrl("")
+            .baseUrl(CoderfunKey.API_BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
 

@@ -8,4 +8,5 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="tb_munion_tip_download_prefix">正在下载:</string>
 </resources>

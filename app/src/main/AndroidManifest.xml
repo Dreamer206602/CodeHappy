@@ -29,6 +29,8 @@
         </activity>
         <activity android:name=".activity.AboutActivity">
         </activity>
+        <activity android:name=".activity.ImageActivity">
+        </activity>
     </application>
 
 </manifest>
