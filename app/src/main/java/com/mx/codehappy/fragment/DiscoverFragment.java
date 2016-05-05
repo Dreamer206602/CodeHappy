@@ -181,7 +181,7 @@ public class DiscoverFragment extends Fragment implements SwipyRefreshLayout.OnR
 
     private void initSwipeRefreshLayout() {
 
-        mSwipyrefreshlayout.setColorSchemeColors(
+        mSwipyrefreshlayout.setColorSchemeResources(
                 android.R.color.holo_blue_light,
                 android.R.color.holo_red_light,
                 android.R.color.holo_orange_light,

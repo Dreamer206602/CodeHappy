@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
 def dbflow_version = "3.0.0-beta3"
 android {
-    lintOptions{
+    lintOptions {
         abortOnError false;
     }
     signingConfigs {
@@ -40,9 +40,6 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.3.0'
-    compile 'com.android.support:recyclerview-v7:23.3.0'
-    compile 'com.android.support:design:23.3.0'
 
     //DBFlow
     apt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
@@ -51,6 +48,10 @@ dependencies {
 
 
 
+    compile project(path: ':baseadapterlib')
+    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:recyclerview-v7:23.3.0'
+    compile 'com.android.support:design:23.3.0'
     compile 'com.github.orangegangsters:swipy:1.2.2@aar'
     compile 'com.wang.avi:library:1.0.2'
     compile 'com.nineoldandroids:library:2.4.0'
@@ -61,5 +62,4 @@ dependencies {
     compile 'com.facebook.fresco:fresco:0.10.0'
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'com.android.support:support-v4:23.3.0'
-    compile project(path: ':baseadapterlib')
 }
