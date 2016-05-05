@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
 /**
  * Created by hugeterry(http://hugeterry.cn)
  * Date: 16/2/19 02:57
@@ -63,7 +62,7 @@ public class PartAdapter extends RecyclerView.Adapter<PartAdapter.PartViewHolder
                 holder.view.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(context,WebActivity.class);
+                        Intent intent = new Intent(context, WebActivity.class);
                         intent.putExtra("url", part_list.get(position).getUrl());
                         intent.putExtra("desc", part_list.get(position).getDesc());
                         context.startActivity(intent);

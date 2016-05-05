@@ -3,6 +3,7 @@ package com.mx.codehappy.application;
 import android.app.Application;
 
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.raizlabs.android.dbflow.config.FlowManager;
 
 /**
  * Created by boobooL on 2016/5/3 0003
@@ -13,7 +14,7 @@ public class BaseApplication extends Application{
     public void onCreate() {
         super.onCreate();
         Fresco.initialize(this);
-        //FlowManager.init(this);
+        FlowManager.init(getApplicationContext());
 
     }
 }

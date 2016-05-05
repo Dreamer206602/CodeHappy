@@ -17,10 +17,12 @@ import com.mx.codehappy.R;
 import com.mx.codehappy.adapter.GirlyAdapter;
 import com.mx.codehappy.adapter.PartAdapter;
 import com.mx.codehappy.adapter.RealAdapter;
+import com.mx.codehappy.cache.CoderfunCache;
 import com.mx.codehappy.constant.CoderfunKey;
 import com.mx.codehappy.model.DataResults;
 import com.mx.codehappy.model.Results;
 import com.mx.codehappy.retorfit.CoderfunSingle;
+import com.mx.codehappy.utils.FunDao;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayout;
 import com.orangegangsters.github.swipyrefreshlayout.library.SwipyRefreshLayoutDirection;
 
@@ -48,19 +50,19 @@ public class DiscoverFragment extends Fragment implements SwipyRefreshLayout.OnR
     SwipyRefreshLayout mSwipyrefreshlayout;
     private String mTitle;
     public static final String ARG_TITLE = "title";
-    public static  int FRESH_GANHUO_TIME=4;
-    public static  int fi_num= CoderfunKey.FI_NUM;
-    public static  int gh_num=CoderfunKey.GH_NUM;
-    public static  int mz_num=CoderfunKey.MZ_NUM;
-    public static  int NOM_PAGE_FI=1;
-    public static  int NOM_PAGE_GH=1;
-    public static  int NOM_PAGE_MZ=1;
+    public static int FRESH_GANHUO_TIME = 4;
+    public static int fi_num = CoderfunKey.FI_NUM;
+    public static int gh_num = CoderfunKey.GH_NUM;
+    public static int mz_num = CoderfunKey.MZ_NUM;
+    public static int NOM_PAGE_FI = 1;
+    public static int NOM_PAGE_GH = 1;
+    public static int NOM_PAGE_MZ = 1;
 
-    private List<Results>part_list=new ArrayList<>();
-    private List<Results>ganhuo_list;
-    private List<List<Results>>ganhuo_real_list=new ArrayList<>();
-    private List<Results>girly_list=new ArrayList<>();
-    
+    private List<Results> part_list = new ArrayList<>();
+    private List<Results> ganhuo_list;
+    private List<List<Results>> ganhuo_real_list = new ArrayList<>();
+    private List<Results> girly_list = new ArrayList<>();
+
     private GirlyAdapter mGirlyAdapter;
     private RealAdapter mRealAdapter;
     private PartAdapter mPartAdapter;
@@ -80,6 +82,7 @@ public class DiscoverFragment extends Fragment implements SwipyRefreshLayout.OnR
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
         mTitle = bundle.getString(ARG_TITLE);
+        CoderfunCache.ISBACKFROMWEBORIMAGE = false;
     }
 
     @Override
@@ -90,63 +93,86 @@ public class DiscoverFragment extends Fragment implements SwipyRefreshLayout.OnR
 
         initRecyclerView();
         initSwipeRefreshLayout();
-        
+
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-  
 
-        //TODO 先不要从数据库获取
-        loadData(true);
+        loadDbData();//从数据库加载数据
+
+        if (!CoderfunCache.ISBACKFROMWEBORIMAGE) {
+            //TODO 不要从数据库获取
+            loadData(true);
+        }
 
 
     }
 
-    private void loadData(boolean isTop) {
-        switch (mTitle){
+    private void loadDbData() {
+        clearAdapterResults();
+        switch (mTitle) {
             case "首页":
-                if(isTop){
-                    NOM_PAGE_FI=1;
-                }
-                getDataResults("all",fi_num,NOM_PAGE_FI,isTop);
+                part_list.clear();
+                part_list.addAll(FunDao.getFun_Part());
                 break;
             case "干货":
-                FRESH_GANHUO_TIME=0;
+                FRESH_GANHUO_TIME = 4;
                 ganhuo_real_list.clear();
-                getDataResults("Android",gh_num,NOM_PAGE_GH,isTop);
-                getDataResults("iOS",gh_num,NOM_PAGE_GH,isTop);
-                getDataResults("前端",gh_num,NOM_PAGE_GH,isTop);
-                getDataResults("拓展资源",gh_num,NOM_PAGE_GH,isTop);
+                ganhuo_real_list.addAll(FunDao.getFun_Real());
                 break;
             case "妹纸":
-                if(isTop){
-                    NOM_PAGE_MZ=1;
+                girly_list.clear();
+                girly_list.addAll(FunDao.getFun_Girly());
+                break;
+
+        }
+        dealWithDataInRecyclerView(part_list, ganhuo_real_list, girly_list);
+    }
+
+    private void loadData(boolean isTop) {
+        switch (mTitle) {
+            case "首页":
+                if (isTop) {
+                    NOM_PAGE_FI = 1;
                 }
-                getDataResults("福利",mz_num,NOM_PAGE_MZ,isTop);
+                getDataResults("all", fi_num, NOM_PAGE_FI, isTop);
+                break;
+            case "干货":
+                FRESH_GANHUO_TIME = 0;
+                ganhuo_real_list.clear();
+                getDataResults("Android", gh_num, NOM_PAGE_GH, isTop);
+                getDataResults("iOS", gh_num, NOM_PAGE_GH, isTop);
+                getDataResults("前端", gh_num, NOM_PAGE_GH, isTop);
+                getDataResults("拓展资源", gh_num, NOM_PAGE_GH, isTop);
+                break;
+            case "妹纸":
+                if (isTop) {
+                    NOM_PAGE_MZ = 1;
+                }
+                getDataResults("福利", mz_num, NOM_PAGE_MZ, isTop);
                 break;
         }
     }
 
-   
 
     private void initRecyclerView() {
-        switch (mTitle){
+        switch (mTitle) {
             case "首页":
                 mRecyclerView.setLayoutManager(new LinearLayoutManager(mRecyclerView.getContext()));
-                mPartAdapter=new PartAdapter(getActivity(),null);
+                mPartAdapter = new PartAdapter(getActivity(), null);
                 mRecyclerView.setAdapter(mPartAdapter);
                 break;
             case "干货":
                 mRecyclerView.setLayoutManager(new LinearLayoutManager(mRecyclerView.getContext()));
-                mRealAdapter=new RealAdapter(getActivity(),null);
+                mRealAdapter = new RealAdapter(getActivity(), null);
                 mRecyclerView.setAdapter(mRealAdapter);
                 break;
             case "妹纸":
-                mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2,StaggeredGridLayoutManager.VERTICAL));
-                mGirlyAdapter=new GirlyAdapter(getActivity(),null);
+                mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL));
+                mGirlyAdapter = new GirlyAdapter(getActivity(), null);
                 mRecyclerView.setAdapter(mGirlyAdapter);
                 break;
         }
@@ -154,67 +180,100 @@ public class DiscoverFragment extends Fragment implements SwipyRefreshLayout.OnR
     }
 
     private void initSwipeRefreshLayout() {
-        
+
         mSwipyrefreshlayout.setColorSchemeColors(
                 android.R.color.holo_blue_light,
                 android.R.color.holo_red_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_green_light);
-        mSwipyrefreshlayout.setDirection(SwipyRefreshLayoutDirection.BOTH);
+       // mSwipyrefreshlayout.setDirection(SwipyRefreshLayoutDirection.BOTH);
         mSwipyrefreshlayout.setOnRefreshListener(this);
 
     }
 
 
-    private void getDataResults(String type, int number, int page, boolean isTop) {
+    private void getDataResults(String type, int number, int page, final boolean isTop) {
 
-        CoderfunSingle.getInstance().getDataResults(type,number,page)
+        CoderfunSingle.getInstance().getDataResults(type, number, page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<DataResults>() {
                     @Override
                     public void onCompleted() {
-                        Log.i("frag","onCompleted");
+                        Log.i("frag", "onCompleted");
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.e("frag", "onError: " + e.getMessage(), e);
-                        Snackbar.make(mRecyclerView,"网络不顺畅嘞,更新不了数据啦",Snackbar.LENGTH_SHORT).show();
+                        Snackbar.make(mRecyclerView, "网络不顺畅嘞,更新不了数据啦", Snackbar.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onNext(DataResults dataResults) {
-                        if(dataResults.isError()){
-                            Snackbar.make(mRecyclerView,"啊擦，服务器出问题啦",Snackbar.LENGTH_SHORT).show();
-                        }else{
-                            if(mTitle.equals("干货")){
-                                ganhuo_list=new ArrayList<Results>();
+                        if (dataResults.isError()) {
+                            Snackbar.make(mRecyclerView, "啊擦，服务器出问题啦", Snackbar.LENGTH_SHORT).show();
+                        } else {
+                            if (mTitle.equals("干货")) {
+                                ganhuo_list = new ArrayList<Results>();
                                 ganhuo_list.addAll(dataResults.getResults());
                                 ganhuo_real_list.add(ganhuo_list);
                                 FRESH_GANHUO_TIME++;
                             }
                         }
-                       //TODO 保存到数据库
-                        
-                        dealWithDataInRecyclerView(dataResults.getResults(),ganhuo_real_list,dataResults.getResults());
-                        
+                        //TODO 保存到数据库
+                        if (isTop) {
+                            //保存数据库
+                            saveDataInDb(dataResults.getResults(), ganhuo_real_list);
+                            clearAdapterResults();
+                        }
+
+                        dealWithDataInRecyclerView(dataResults.getResults(), ganhuo_real_list, dataResults.getResults());
+
                     }
                 });
-        
+
 
     }
 
+    private void saveDataInDb(List<Results> results, List<List<Results>> ganhuo_real_list) {
+
+        switch (mTitle) {
+            case "首页":
+                FunDao.addFun_Part(results);
+                break;
+            case "干货":
+                if (FRESH_GANHUO_TIME == 4) {
+                    FunDao.addFun_Real(ganhuo_real_list);
+                }
+                break;
+            case "妹纸":
+                FunDao.addFun_Girly(results);
+                break;
+        }
+    }
+
+    private void clearAdapterResults() {
+        switch (mTitle) {
+            case "首页":
+                mPartAdapter.getResults().clear();
+                break;
+            case "妹纸":
+                mGirlyAdapter.getResults().clear();
+                break;
+        }
+    }
+
     private void dealWithDataInRecyclerView(List<Results> part_list, List<List<Results>> ganhuo_real_list, List<Results> girly_list) {
-        switch (mTitle){
+        switch (mTitle) {
             case "首页":
                 mPartAdapter.getResults().addAll(part_list);
                 mPartAdapter.notifyDataSetChanged();
                 NOM_PAGE_FI++;
                 break;
             case "干货":
-                if(FRESH_GANHUO_TIME==4){
-                    mRealAdapter.getRealResults().clear();;
+                if (FRESH_GANHUO_TIME == 4) {
+                    mRealAdapter.getRealResults().clear();
                     mRealAdapter.getRealResults().addAll(ganhuo_real_list);
                     mRealAdapter.notifyDataSetChanged();
                     ganhuo_real_list.clear();
@@ -246,8 +305,8 @@ public class DiscoverFragment extends Fragment implements SwipyRefreshLayout.OnR
                         mSwipyrefreshlayout.setRefreshing(false);
                     }
                 });
-        loadData(direction==SwipyRefreshLayoutDirection.TOP?true:false);
-        
-        
+        loadData(direction == SwipyRefreshLayoutDirection.TOP ? true : false);
+
+
     }
 }
